@@ -1,8 +1,17 @@
+import { parse } from "https://deno.land/std/flags/mod.ts";
+
 let timer: null|number = null;
 const throttle = 100;
+const parseArgs = await parse(Deno.args.slice(1));
+const {_, h, help} = parseArgs;
+
+if (!_.length || h || help) {
+    console.dir('run - path=example ');
+    Deno.exit(1);
+}
 
 async function main() {
-    const watcher = Deno.watchFs("src", {recursive: false});
+    const watcher = Deno.watchFs(`${_[0]}`, {recursive: false});
     for await (const event of watcher) {
         const {kind, paths} = event;
         if (timer) {
@@ -12,7 +21,7 @@ async function main() {
             () => {
                 if (kind !== 'access') {
                     Deno.run({
-                        cmd: [Deno.execPath(), `${paths[0]}`]
+                        cmd: [Deno.execPath(), '--allow-run', '--allow-read', '--allow-env' ,...paths]
                     })
                 }
             },
