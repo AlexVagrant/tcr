@@ -6,7 +6,7 @@ const parseArgs = await parse(Deno.args.slice(1));
 const {_, h, help} = parseArgs;
 
 if (!_.length || h || help) {
-    console.dir('run - path=example ');
+    console.dir('usage tcr - <dir or file>');
     Deno.exit(1);
 }
 
