@@ -5,6 +5,12 @@ const throttle = 100;
 const parseArgs = await parse(Deno.args.slice(1));
 const {_, h, help} = parseArgs;
 
+function denoCmd(path:string, test:string='') {
+    Deno.run({
+        cmd: [Deno.execPath(), test, path]
+    })
+}
+
 if (!_.length || h || help) {
     console.dir('usage tcr - <dir or file>');
     Deno.exit(1);
@@ -20,9 +26,14 @@ for await (const event of watcher) {
     timer = setTimeout(
         () => {
             if (kind !== 'access') {
-                Deno.run({
-                    cmd: [Deno.execPath(), '--allow-run', '--allow-read', '--allow-env' ,...paths]
-                })
+                for (let v of paths) {
+                    const isTestArr = v.split('.');
+                    if (isTestArr[isTestArr.length-2]) {
+                        denoCmd(v, 'test')
+                    } else {
+                        denoCmd(v)
+                    }
+                }
             }
         },
         throttle
