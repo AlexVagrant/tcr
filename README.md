@@ -7,6 +7,7 @@ deno install \
   --allow-env \
   --allow-run \
   --allow-read \
+  --allow-net \
   tcr  https://deno.land/x/tcr/mod.ts
 ```
 # Usage
