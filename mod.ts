@@ -1,4 +1,5 @@
 import { parse } from "https://deno.land/std/flags/mod.ts";
+import { common } from "https://deno.land/std/path/mod.ts";
 
 let timer: null|number = null;
 const throttle = 100;
@@ -16,8 +17,11 @@ if (!_.length || h || help) {
     Deno.exit(1);
 }
 
-const watcher = Deno.watchFs(`${_[0]}`, {recursive: false});
-
+const path = (_[0] as string);
+// if is File watch dir 
+const fileInfo = Deno.statSync(path).isFile;
+const watcher = Deno.watchFs(`${fileInfo ? common([path]) : path}`, {recursive: false});
+// parse file
 for await (const event of watcher) {
     const {kind, paths} = event;
     if (timer) {
@@ -28,10 +32,11 @@ for await (const event of watcher) {
             if (kind !== 'access') {
                 for (let v of paths) {
                     const isTestArr = v.split('.');
+                    const runPath = fileInfo ? path : v;
                     if (isTestArr[isTestArr.length-2]) {
-                        denoCmd(v, 'test')
+                        denoCmd(runPath, 'test')
                     } else {
-                        denoCmd(v)
+                        denoCmd(runPath)
                     }
                 }
             }
