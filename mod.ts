@@ -6,10 +6,10 @@ const throttle = 100;
 const denoArgs =  Deno.args;
 const parseArgs = parse(denoArgs.slice(1));
 const {_, h, help} = parseArgs;
-let pid: Deno.Process;
+let process: Deno.Process;
 
 function denoCmd(path:string, test:string='', args: any[]): Deno.Process {
-    console.log(args)    
+    console.log('denoCmd', args)    
     return Deno.run({
         cmd: [Deno.execPath(), test, ...args, path ]
     })
@@ -21,15 +21,17 @@ if (!_.length || h || help) {
 }
 
 const path =  _[0] as string;
-const args = denoArgs.slice(1);
+console.log('denoArgs', denoArgs)
+const args = denoArgs.slice(2);
 //change the current work dir 
-Deno.chdir(Deno.cwd())
+
+Deno.chdir(Deno.cwd()) 
 // if is File watch dir 
 const fileInfo = Deno.lstatSync(path).isFile;
 const watcher = Deno.watchFs(`${fileInfo ? common([path]) : path}`, {recursive: false});
 
 if (fileInfo) {
-  denoCmd(path, 'run', args)  
+  process = denoCmd(path, 'run', args);
 }
 
 for await (const event of watcher) {
@@ -43,16 +45,15 @@ for await (const event of watcher) {
                 for (let v of paths) {
                     const isTestArr = v.split('.');
                     const runPath = fileInfo ? path : v;
-                    if (pid){
-                      Deno.close(pid.rid)
+                    // if has process.pid kill this process
+                    if (process.pid){
+                      process.close() 
                     }
                     if (isTestArr[isTestArr.length-2]) {
-                        pid = denoCmd(runPath, 'test', args)
+                        process = denoCmd(runPath, 'test', args)
                     } else {
-                        pid = denoCmd(runPath, 'run', args)
+                        process = denoCmd(runPath, 'run', args)
                     }
-
-                    console.log('pid = ', pid);
                 }
             }
         },
