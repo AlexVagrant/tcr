@@ -5,7 +5,7 @@ let timer: null|number = null;
 const throttle = 100;
 const denoArgs =  Deno.args;
 const parseArgs = parse(denoArgs.slice(1));
-//console.log(7, denoArgs)
+console.log(7, denoArgs)
 //7 [ "..\\deno_demo\\example\\app.ts", "--allow-net" ]
 const {h, help} = parseArgs;
 
@@ -21,7 +21,7 @@ if (h || help) {
 }
 
 const path =  denoArgs[0];
-Deno.chdir(path);
+console.log(path)
 const args = denoArgs.slice(1);
 // if is File watch dir 
 const fileInfo = Deno.statSync(path).isFile;
