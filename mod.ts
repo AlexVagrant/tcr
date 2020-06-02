@@ -9,6 +9,7 @@ const {_, h, help} = parseArgs;
 let pid: Deno.Process;
 
 function denoCmd(path:string, test:string='', args: any[]): Deno.Process {
+    console.log(args)    
     return Deno.run({
         cmd: [Deno.execPath(), test, ...args, path ]
     })
@@ -21,9 +22,9 @@ if (!_.length || h || help) {
 
 const path =  _[0] as string;
 const args = denoArgs.slice(1);
-
+//change the current work dir 
+Deno.chdir(Deno.cwd())
 // if is File watch dir 
-console.log(path)
 const fileInfo = Deno.statSync(path).isFile;
 const watcher = Deno.watchFs(`${fileInfo ? common([path]) : path}`, {recursive: false});
 
