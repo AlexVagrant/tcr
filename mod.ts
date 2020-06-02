@@ -25,7 +25,7 @@ const args = denoArgs.slice(1);
 //change the current work dir 
 Deno.chdir(Deno.cwd())
 // if is File watch dir 
-const fileInfo = Deno.statSync(path).isFile;
+const fileInfo = Deno.lstatSync(path).isFile;
 const watcher = Deno.watchFs(`${fileInfo ? common([path]) : path}`, {recursive: false});
 
 if (fileInfo) {
