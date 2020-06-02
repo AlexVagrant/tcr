@@ -3,24 +3,33 @@ import { common } from "https://deno.land/std/path/mod.ts";
 
 let timer: null|number = null;
 const throttle = 100;
-const parseArgs = await parse(Deno.args.slice(1));
-const {_, h, help} = parseArgs;
+const denoArgs =  Deno.args;
+const parseArgs = parse(denoArgs.slice(1));
+//console.log(7, denoArgs)
+//7 [ "..\\deno_demo\\example\\app.ts", "--allow-net" ]
+const {h, help} = parseArgs;
 
-function denoCmd(path:string, test:string='') {
+function denoCmd(path:string, test:string='', ...args: any[]) {
     Deno.run({
-        cmd: [Deno.execPath(), test, path]
+        cmd: [Deno.execPath(), test,...args, path ]
     })
 }
 
-if (!_.length || h || help) {
+if (h || help) {
     console.dir('usage tcr - <dir or file>');
     Deno.exit(1);
 }
 
-const path = (_[0] as string);
+const path =  denoArgs[0];
+Deno.chdir(path);
+const args = denoArgs.slice(1);
 // if is File watch dir 
 const fileInfo = Deno.statSync(path).isFile;
 const watcher = Deno.watchFs(`${fileInfo ? common([path]) : path}`, {recursive: false});
+if (fileInfo) {
+  console.log(args)
+  denoCmd(path, 'run', ...args)  
+}
 // parse file
 for await (const event of watcher) {
     const {kind, paths} = event;
@@ -33,10 +42,11 @@ for await (const event of watcher) {
                 for (let v of paths) {
                     const isTestArr = v.split('.');
                     const runPath = fileInfo ? path : v;
+                  console.log(runPath)
                     if (isTestArr[isTestArr.length-2]) {
-                        denoCmd(runPath, 'test')
+                        denoCmd(runPath, 'test', ...args)
                     } else {
-                        denoCmd(runPath)
+                        denoCmd(runPath, 'run',  ...args)
                     }
                 }
             }
