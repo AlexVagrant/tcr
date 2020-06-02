@@ -5,32 +5,31 @@ let timer: null|number = null;
 const throttle = 100;
 const denoArgs =  Deno.args;
 const parseArgs = parse(denoArgs.slice(1));
-console.log(7, denoArgs)
-//7 [ "..\\deno_demo\\example\\app.ts", "--allow-net" ]
-const {h, help} = parseArgs;
+const {_, h, help} = parseArgs;
+let pid: Deno.Process;
 
-function denoCmd(path:string, test:string='', ...args: any[]) {
-    Deno.run({
-        cmd: [Deno.execPath(), test,...args, path ]
+function denoCmd(path:string, test:string='', args: any[]): Deno.Process {
+    return Deno.run({
+        cmd: [Deno.execPath(), test, ...args, path ]
     })
 }
 
-if (h || help) {
+if (!_.length || h || help) {
     console.dir('usage tcr - <dir or file>');
     Deno.exit(1);
 }
 
-const path =  denoArgs[0];
-console.log(path)
+const path =  _[0] as string;
 const args = denoArgs.slice(1);
+
 // if is File watch dir 
 const fileInfo = Deno.statSync(path).isFile;
 const watcher = Deno.watchFs(`${fileInfo ? common([path]) : path}`, {recursive: false});
+
 if (fileInfo) {
-  console.log(args)
-  denoCmd(path, 'run', ...args)  
+  denoCmd(path, 'run', args)  
 }
-// parse file
+
 for await (const event of watcher) {
     const {kind, paths} = event;
     if (timer) {
@@ -42,12 +41,16 @@ for await (const event of watcher) {
                 for (let v of paths) {
                     const isTestArr = v.split('.');
                     const runPath = fileInfo ? path : v;
-                  console.log(runPath)
-                    if (isTestArr[isTestArr.length-2]) {
-                        denoCmd(runPath, 'test', ...args)
-                    } else {
-                        denoCmd(runPath, 'run',  ...args)
+                    if (pid){
+                      Deno.close(pid.rid)
                     }
+                    if (isTestArr[isTestArr.length-2]) {
+                        pid = denoCmd(runPath, 'test', args)
+                    } else {
+                        pid = denoCmd(runPath, 'run', args)
+                    }
+
+                    console.log('pid = ', pid);
                 }
             }
         },
