@@ -23,6 +23,7 @@ const path =  _[0] as string;
 const args = denoArgs.slice(1);
 
 // if is File watch dir 
+console.log(path)
 const fileInfo = Deno.statSync(path).isFile;
 const watcher = Deno.watchFs(`${fileInfo ? common([path]) : path}`, {recursive: false});
 
