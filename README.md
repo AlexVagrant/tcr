@@ -3,14 +3,9 @@ tcr will complie and run with deno when typescript file change, you can direct r
 
 # Install
 ```
-deno install \
-  --allow-env \
-  --allow-run \
-  --allow-read \
-  --allow-net \
-  tcr  https://deno.land/x/tcr/mod.ts
+deno install -A tcr  https://deno.land/x/tcr/mod.ts
 ```
 # Usage
-` tcr - <dir or file>`
+` tcr - <dir or file> ...arguments`
 
 thanks @Caesar2011 rhinoder

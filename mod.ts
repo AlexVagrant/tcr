@@ -16,8 +16,8 @@ function denoCmd(path:string, test:string='', args: any[]): Deno.Process {
 }
 
 if (!_.length || h || help) {
-    console.dir('usage tcr - <dir or file>');
-    Deno.exit(1);
+    console.dir('usage tcr - <dir or file> ...arguments');
+   Deno.exit(1);
 }
 
 const path =  _[0] as string;
