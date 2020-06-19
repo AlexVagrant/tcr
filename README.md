@@ -1,5 +1,5 @@
 # tcr
-tcr will complie and run with deno when typescript file change, you can direct run tstypescript file
+tcr will complie and run with deno when typescript file change, you can direct run typescript file
 
 # Install
 ```
